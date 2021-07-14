@@ -3,14 +3,14 @@
 #############################################################################
 # Compilation time parameters
 NVECTOR = 32
-NDIM = 1
+NDIM = 3
 NPRE = 8
-NVAR = 5
+NVAR = 10
 NENER = 0
-SOLVER = hydro
-PATCH =
-GRACKLE = 0
-EXEC = ramses
+SOLVER = mhd
+PATCH = ../patch/agora_mhd
+GRACKLE = 1
+EXEC = ramses.mhd
 # Set to one to use 'include "mpif.h"' instead of more recent "use mpi"
 OLD_MPI_SUPPORT = 0
 #############################################################################
@@ -31,8 +31,8 @@ endif
 # Fortran compiler options and directives
 
 # --- No MPI, gfortran -------------------------------
-F90 = gfortran -O3 -frecord-marker=4 -fbacktrace -ffree-line-length-none -g -fimplicit-none
-FFLAGS = -x f95-cpp-input $(DEFINES) -DWITHOUTMPI
+#F90 = gfortran -O3 -frecord-marker=4 -fbacktrace -ffree-line-length-none -g -fimplicit-none
+#FFLAGS = -x f95-cpp-input $(DEFINES) -DWITHOUTMPI
 
 # --- No MPI, tau ----------------------------------
 #F90 = tau_f90.sh -optKeepFiles -optPreProcess -optCPPOpts=$(DEFINES) -DWITHOUTMPI
@@ -54,8 +54,8 @@ FFLAGS = -x f95-cpp-input $(DEFINES) -DWITHOUTMPI
 #FFLAGS = -cpp $(DEFINES) -DWITHOUTMPI
 
 # --- MPI, gfortran syntax ------------------------------
-#F90 = mpif90 -frecord-marker=4 -O3 -ffree-line-length-none -g -fbacktrace
-#FFLAGS = -x f95-cpp-input $(DEFINES)
+F90 = mpif90 -frecord-marker=4 -O3 -ffree-line-length-none -g -fbacktrace
+FFLAGS = -x f95-cpp-input $(DEFINES)
 
 # --- MPI, gfortran DEBUG syntax ------------------------------
 #F90 = mpif90 -frecord-marker=4 -ffree-line-length-none -fbacktrace -g -O -fbounds-check -Wuninitialized -Wall
@@ -97,9 +97,8 @@ LIBMPI =
 LIBCUDA = -L/opt/cuda/lib  -lm -lcuda -lcudart
 
 ifeq ($(GRACKLE),1)
-# Add include and library install path for grackle and hdf5 here
-LIBS_GRACKLE = -L$(HOME)/local/lib -lgrackle -lhdf5 -lz -lgfortran -ldl
-LIBS_OBJ     = -I$(HOME)/local/include -DCONFIG_BFLOAT_8 -DH5_USE_16_API -fPIC
+LIBS_GRACKLE = -L/home/w/wadsley/wadsley/grackle3_1/grackle-master/src/clib/.libs -lgrackle -lhdf5 -lz -lgfortran -ldl
+LIBS_OBJ     = -I/home/w/wadsley/wadsley/grackle3_1/grackle-master/src/clib -DCONFIG_BFLOAT_8 -DH5_USE_16_API -fPIC
 endif
 LIBS = $(LIBMPI) $(LIBS_GRACKLE)
 #############################################################################

@@ -315,12 +315,22 @@ subroutine coolfine1(ind_grid,ngrid,ilevel)
      if(jeans_ncells>0)then
         do i=1,nleaf
            T2min(i) = nH(i)*polytropic_constant*scale_T2
+           !if(uold(ind_leaf(i),1)>1.06e5)then
+           !write(*,*) 'jeans_ncells=4',uold(ind_leaf(i),1),T2min(i),T2(i),nH(i)
+           !endif
+
         end do
      else
         do i=1,nleaf
            T2min(i) = T2_star*(nH(i)/nISM)**(g_star-1.0d0)
+           !write(*,*) "T2min calculated"
+           !if(uold(ind_leaf(i),1)>1.06e5)then
+           !write(*,*) uold(ind_leaf(i),1),T2min(i),T2(i)
+           !endif
         end do
      endif
+     !write(*,*) "test" 
+
      !==========================================
      ! You can put your own polytrope EOS here
      !==========================================

@@ -13,7 +13,7 @@ subroutine star_formation(ilevel)
   integer::info,info2,dummy_io
   integer,parameter::tag=1120
 #endif
-  integer::ilevel
+  integer::ilevel, clevelmax
   !----------------------------------------------------------------------
   ! Description: This subroutine spawns star-particle of constant mass
   ! using a Poisson probability law if some gas condition are fulfilled.
@@ -25,7 +25,7 @@ subroutine star_formation(ilevel)
   ! Yann Rasera  10/2002-01/2003
   !----------------------------------------------------------------------
   ! local constants
-  real(dp)::t0,d0,d00,mgas,mcell
+  real(dp)::d0,mgas,mcell
   real(dp)::scale_nH,scale_T2,scale_l,scale_d,scale_t,scale_v
   real(dp),dimension(1:twotondim,1:3)::xc
   ! other variables
@@ -74,6 +74,15 @@ subroutine star_formation(ilevel)
   if(.not. hydro)return
   if(ndim.ne.3)return
   if(static)return
+
+  ! Cap maximum level   !BoRev
+  clevelmax=nlevelmax
+  do i=levelmin,nlevelmax
+     if ((m_refine(i)==-1.0d0).or.(m_refine(i)>=1.0d8)) exit
+  end do
+  clevelmax=i
+  if (ilevel>clevelmax) return
+  !
 
   if(verbose)write(*,*)' Entering star_formation'
 
@@ -137,13 +146,11 @@ subroutine star_formation(ilevel)
   scale=boxlen/dble(nx_loc)
   dx_loc=dx*scale
   vol_loc=dx_loc**ndim
-  dx_min=(0.5D0**nlevelmax)*scale
+  !dx_min=(0.5D0**nlevelmax)*scale
+  dx_min=(0.5D0**clevelmax)*scale   !BoRev
   vol_min=dx_min**ndim
 
-  ! Star formation time scale from Gyr to code units
-  ! SFR apply here for long lived stars only
-  t0=t_star*Gyr2sec/scale_t
-  trel=sf_trelax*Myr2sec/scale_t
+  trel=sf_trelax*Myr2sec/scale_t ! relaxation timescale
 
   ! ISM density threshold from H/cc to code units
   nISM = n_star
@@ -152,7 +159,6 @@ subroutine star_formation(ilevel)
      nISM = MAX(nCOM,nISM)
   endif
   d0   = nISM/scale_nH
-  d00  = n_star/scale_nH
 
   ! Initial star particle mass
   if(m_star < 0d0)then

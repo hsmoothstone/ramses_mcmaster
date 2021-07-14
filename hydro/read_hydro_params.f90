@@ -2,6 +2,7 @@ subroutine read_hydro_params(nml_ok)
   use amr_commons
   use hydro_commons
   use mpi_mod
+  use grackle_parameters
   implicit none
   logical::nml_ok
   !--------------------------------------------------

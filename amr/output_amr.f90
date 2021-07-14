@@ -36,7 +36,6 @@ subroutine dump_all
      else
         filedir='output_'//TRIM(nchar)//'/'
      endif
-
      call create_output_dirs(filedir)
 
      if(myid==1.and.print_when_io) write(*,*)'Start backup header'
@@ -664,7 +663,7 @@ subroutine create_output_dirs(filedir)
 #ifndef WITHOUTMPI
   integer :: info
 #endif
-
+  logical :: ex
 
 
   if (.not.withoutmkdir) then
@@ -675,10 +674,16 @@ subroutine create_output_dirs(filedir)
       call PXFMKDIR(TRIM(filedir),LEN(TRIM(filedir)),O'755',info_sys)
 #else
       filecmd='mkdir -p '//TRIM(filedir)
-      ierr=1
-      call EXECUTE_COMMAND_LINE(filecmd,exitstat=ierr)
+      ierr=0
+
+      INQUIRE(FILE=TRIM(filedir),EXIST=ex)
+      if (.NOT. ex) then
+         ierr=1 
+         call EXECUTE_COMMAND_LINE(filecmd,exitstat=ierr)
+      endif
+
       if(ierr.ne.0 .and. ierr.ne.127)then
-        write(*,*) 'Error - Could not create ',TRIM(filedir),' error code=',ierr
+      write(*,*) 'Error - Could not create ',TRIM(filedir),' error code=',ierr
 #ifndef WITHOUTMPI
         call MPI_ABORT(MPI_COMM_WORLD,1,info)
 #else
@@ -688,6 +693,7 @@ subroutine create_output_dirs(filedir)
 #endif
     endif
   endif
+
 
 
 #ifndef WITHOUTMPI

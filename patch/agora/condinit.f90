@@ -29,10 +29,6 @@ module merger_parameters
   real(dp)::rslab = 0.0D0
   real(dp)::hslab =0.0d0
 
-  ! Magnetic Field Setup
-  real(dp)::typ_mag_radius = 3.0D0           ! radial scale length
-  real(dp)::typ_mag_height = 1.5D-1          ! vertical scale length
-
 end module merger_parameters
 
 module merger_commons
@@ -66,8 +62,7 @@ subroutine read_merger_params
        & ,typ_radius1, typ_radius2, cut_radius1, cut_radius2 &
        & ,typ_height1, typ_height2, cut_height1, cut_height2 &
        & ,rad_profile, Vcirc_dat_file1, Vcirc_dat_file2 &
-       & ,gal_axis1, gal_axis2, Vgal1, Vgal2,Zgas,HIfr,rslab,hslab &
-       & ,typ_mag_radius, typ_mag_height
+       & ,gal_axis1, gal_axis2, Vgal1, Vgal2,Zgas,HIfr,rslab,hslab
 
 
   CALL getarg(1,infile)
@@ -203,7 +198,6 @@ subroutine condinit(x,u,dx,nn)
   ! Gaseous disk typical radii (a) (given in kpc unit)
   rcar1 = typ_radius1 !* 3.085677581282D21 / scale_l
   rcar2 = typ_radius2 !* 3.085677581282D21 / scale_l
-  typ_mag_radius = typ_mag_radius * 3.085677581282D21 / scale_l
   ! Gaseous disk max radii (given in kpc unit)
   rcut1 = cut_radius1 !* 3.085677581282D21 / scale_l
   rcut2 = cut_radius2 !* 3.085677581282D21 / scale_l
@@ -354,14 +348,14 @@ subroutine condinit(x,u,dx,nn)
                end if
         end select
         q(i,1) = max(weight * q(i,1), dmin) !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<----------------- Figure out what this line does
-        ! P = rho * a = rho * Cs
+        ! P = rho * a² = rho * Cs²
         q(i,ndim+2)=a2*q(i,1)
 
         !Metals
         q(i,ndim+3)=Zgas*0.02d0  !average Z
 
         ! V = Vrot * (u_rot^xx_rad)/r + Vx_gal        
-        !  -> Vrot = sqrt(Vcirc**2 - 3*Cs + r/rho * grad(rho) * Cs)
+        !  -> Vrot = sqrt(Vcirc**2 - 3*Cs² + r/rho * grad(rho) * Cs²)
         select case (rad_profile)
             case ('exponential')
                Vrot = sqrt(max(Vcirc**2 - 3.0D0*a2 - r/rgal * a2,0.0D0))
@@ -388,9 +382,6 @@ subroutine condinit(x,u,dx,nn)
   enddo
   !close(4471)
 
-
-  call mag_toroidal(x,q,dx,nn,B_ave,typ_mag_radius,typ_mag_height)
-
   ! Convert primitive to conservative variables
   ! density -> density
   u(1:nn,1)=q(1:nn,1)
@@ -416,10 +407,6 @@ subroutine condinit(x,u,dx,nn)
   ! pressure -> total fluid energy
   ! E = Ec + P / (gamma - 1)
   u(1:nn,ndim+2)=u(1:nn,ndim+2)+q(1:nn,ndim+2)/(gamma-1.0d0)
-  ! magnetic energy -> total fluid energy
-  u(1:nn,5)=u(1:nn,5)+0.125d0*(q(1:nn,6)+q(1:nn,nvar+1))**2
-  u(1:nn,5)=u(1:nn,5)+0.125d0*(q(1:nn,7)+q(1:nn,nvar+2))**2
-  u(1:nn,5)=u(1:nn,5)+0.125d0*(q(1:nn,8)+q(1:nn,nvar+3))**2
   ! passive scalars
   do ivar=ndim+3,nvar
      u(1:nn,ivar)=q(1:nn,1)*q(1:nn,ivar)
@@ -560,92 +547,5 @@ subroutine read_vcirc_files
 
 
 end subroutine read_vcirc_files
-
-subroutine mag_toroidal(x,q,dx,nn,B_0,mag_radius,mag_height)
-  use amr_parameters
-  use hydro_parameters, only: nvar
-  use const
-  implicit none
-
-  real(dp),dimension(1:nvector,1:ndim)::x    ! Cell center position
-  real(dp),dimension(1:nvector,1:nvar+3)::q  ! Primitive variables
-  integer::nn                                ! Number of cells
-  real(dp)::dx                               ! Cell size
-  real(dp)::B_0,mag_radius,mag_height        ! Default B-strength
-  real(dp)::xx,yy,zz
-  integer::i,it,nticks
-  real(dp)::dxmin,Al,Ar,ztick,rltick,rrtick,zavg,Bscale,r_scale,z_scale
-
-  ! Toroidal field, prop. to rho**(2/3)
-
-  dxmin=boxlen*0.5d0**nlevelmax
-  nticks=nint(dx/dxmin)
-
-  r_scale = two3rd / mag_radius
-  z_scale = two3rd / mag_height
-
-  do i=1,nn
-    ! box-centered coordinates
-    xx=x(i,1) - boxlen * 0.5d0
-    yy=x(i,2) - boxlen * 0.5d0
-    zz=x(i,3) - boxlen * 0.5d0
-
-    ! average exp(-h) over the z axis
-    ztick = zz + 0.5*(dxmin-dx)
-    zavg = 0.0
-    do it=1,nticks
-      zavg=zavg + exp(-ABS(ztick)*z_scale)
-      ztick=ztick + dxmin
-    end do
-    Bscale = B_0 * zavg/DBLE(nticks) / r_scale / dx
-
-    ! B left
-    ! X direction
-    rltick = SQRT( (xx - 0.5*dx)**2 + (yy - 0.5*dx)**2 )
-    rrtick = SQRT( (xx - 0.5*dx)**2 + (yy + 0.5*dx)**2 )
-
-    Al= exp(-rltick*r_scale)
-    Ar= exp(-rrtick*r_scale)
-
-    q(i,6)=Bscale * (Ar-Al)
-
-    ! Y direction
-    rltick = SQRT( (xx - 0.5*dx)**2 + (yy - 0.5*dx)**2 )
-    rrtick = SQRT( (xx + 0.5*dx)**2 + (yy - 0.5*dx)**2 )
-
-    Al= exp(-rltick*r_scale)
-    Ar= exp(-rrtick*r_scale)
-
-    q(i,7)=Bscale * (Al-Ar)
-
-    ! Z direction
-    q(i,8)=0.0
-
-    ! B right
-    ! X direction
-    rltick = SQRT( (xx + 0.5*dx)**2 + (yy - 0.5*dx)**2 )
-    rrtick = SQRT( (xx + 0.5*dx)**2 + (yy + 0.5*dx)**2 )
-
-    Al= exp(-rltick*r_scale)
-    Ar= exp(-rrtick*r_scale)
-
-    q(i,nvar+1)=Bscale * (Ar-Al)
-
-    ! Y direction
-    rltick = SQRT( (xx - 0.5*dx)**2 + (yy + 0.5*dx)**2 )
-    rrtick = SQRT( (xx + 0.5*dx)**2 + (yy + 0.5*dx)**2 )
-
-    Al= exp(-rltick*r_scale)
-    Ar= exp(-rrtick*r_scale)
-
-    q(i,nvar+2)=Bscale * (Al-Ar)
-
-    ! Z direction
-    q(i,nvar+3)=0.0
-  end do
-
-end subroutine mag_toroidal
-
-
 ! }}}
 !--------------------------------------------------------------------------------------

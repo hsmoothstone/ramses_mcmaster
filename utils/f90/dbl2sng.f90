@@ -40,7 +40,7 @@ program dbl2sng
   real(dp)::xdum
 
   ! Output times
-  integer,parameter::MAXOUT=1000
+  integer,parameter::MAXOUT=5000
   real(dp),dimension(1:MAXOUT)::aout=1.1       ! Output expansion factors
   real(dp),dimension(1:MAXOUT)::tout=0.0       ! Output times
 

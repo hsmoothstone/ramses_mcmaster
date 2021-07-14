@@ -319,8 +319,16 @@ subroutine init_amr
         call clean_stop
      end if
      ! Old output times
+     !write(*,*) noutput,noutput2,MAXOUT
+
+
      tout(1:noutput2)=tout2(1:noutput2)
      aout(1:noutput2)=aout2(1:noutput2)
+
+     !do i=1,noutput2
+     !    write(*,*) i,tout(i)
+     !end do
+
      iout=iout2
      ifout=ifout2
      if(ifout.gt.nrestart+1) ifout=nrestart+1
