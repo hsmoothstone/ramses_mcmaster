@@ -31,4 +31,4 @@ To generate idealised initial conditions of galaxies, check out the [DICE][5] co
 
 To generate cosmological initial conditions, check out the [MUSIC][6] code.
 
-To visualize RAMSES data, we encourage you to use the [OSIRIS][7] or the [PYNBODY][8] codes.
+To visualize RAMSES data, we encourage you to use the [OSIRIS][7] or the [PYNBODY][8] codes.# ramses_mcmaster
