@@ -4,7 +4,9 @@ subroutine adaptive_loop
   use pm_commons
   use poisson_commons
   use cooling_module
+#ifdef grackle  
   use grackle_parameters
+#endif
 #ifdef RT
   use rt_hydro_commons
 #endif

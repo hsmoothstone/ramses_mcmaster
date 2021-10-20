@@ -126,6 +126,8 @@ subroutine newdt_fine(ilevel)
   end if
 
   if(hydro)call courant_fine(ilevel)
+  dtnew(ilevel)=MIN(dtnew(ilevel),dtfine_max)
+  dtnew(ilevel)=MAX(dtnew(ilevel),dtfine_min)
 
 111 format('   Entering newdt_fine for level ',I2)
 

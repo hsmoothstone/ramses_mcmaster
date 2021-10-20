@@ -22,6 +22,8 @@ module amr_commons
   real(dp)::aexp_old=1.0D0                      ! Old expansion factor
   real(dp)::rho_tot=0.0D0                       ! Mean density in the box
   real(dp)::t=0.0D0                             ! Time variable
+  real(dp)::dtfine_max=1.0D37                   ! Max timestep JWW
+  real(dp)::dtfine_min=0.0D0                    ! Min timestep JWW
 
   ! executable identification
   CHARACTER(LEN=80)::builddate,patchdir
