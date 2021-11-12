@@ -305,23 +305,24 @@ subroutine init_amr
      end if
      read(ilun)tout2(1:noutput2)
      read(ilun)aout2(1:noutput2)
-     ! Check compatibility with current parameters
-     if((ndim2.ne.ndim).or.(nx2.ne.nx).or.(ny2.ne.ny).or.(nz2.ne.nz).or.&
-          & (nboundary2.ne.nboundary).or.(nlevelmax2>nlevelmax).or.&
-          & (ngrid_current>ngridmax).or.(noutput2>noutput) )then
-        write(*,*)'File amr.tmp is not compatible with namelist'
-        write(*,*)'         ndim   nx   ny   nz nlevelmax noutput   ngridmax nboundary'
-        write(*,'("amr.tmp  =",4(I4,1x),5x,I4,4x,I4,3x,I8)')&
-             & ndim2,nx2,ny2,nz2,nlevelmax2,noutput2,ngrid_current,nboundary2
-        write(*,'("namelist =",4(I4,1x),5x,I4,4x,I4,3x,I8)')&
-             & ndim ,nx ,ny ,nz ,nlevelmax ,noutput, ngridmax     ,nboundary
-        if(myid==1)write(*,*)'Restart failed'
-        call clean_stop
-     end if
-     ! Old output times
-     !write(*,*) noutput,noutput2,MAXOUT
 
      if (.not.restartnewtout) then
+        ! Check compatibility with current parameters
+        if((ndim2.ne.ndim).or.(nx2.ne.nx).or.(ny2.ne.ny).or.(nz2.ne.nz).or.&
+             & (nboundary2.ne.nboundary).or.(nlevelmax2>nlevelmax).or.&
+             & (ngrid_current>ngridmax).or.(noutput2>noutput) )then
+           write(*,*)'File amr.tmp is not compatible with namelist'
+           write(*,*)'         ndim   nx   ny   nz nlevelmax noutput   ngridmax nboundary'
+           write(*,'("amr.tmp  =",4(I4,1x),5x,I4,4x,I4,3x,I8)')&
+                & ndim2,nx2,ny2,nz2,nlevelmax2,noutput2,ngrid_current,nboundary2
+           write(*,'("namelist =",4(I4,1x),5x,I4,4x,I4,3x,I8)')&
+                & ndim ,nx ,ny ,nz ,nlevelmax ,noutput, ngridmax     ,nboundary
+           if(myid==1)write(*,*)'Restart failed'
+           call clean_stop
+        end if
+        ! Old output times
+        !write(*,*) noutput,noutput2,MAXOUT
+
         tout(1:noutput2)=tout2(1:noutput2)
         aout(1:noutput2)=aout2(1:noutput2)
      endif
