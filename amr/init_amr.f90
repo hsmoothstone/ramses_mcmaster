@@ -321,9 +321,10 @@ subroutine init_amr
      ! Old output times
      !write(*,*) noutput,noutput2,MAXOUT
 
-
-     tout(1:noutput2)=tout2(1:noutput2)
-     aout(1:noutput2)=aout2(1:noutput2)
+     if (.not.restartnewtout) then
+        tout(1:noutput2)=tout2(1:noutput2)
+        aout(1:noutput2)=aout2(1:noutput2)
+     endif
 
      !do i=1,noutput2
      !    write(*,*) i,tout(i)
