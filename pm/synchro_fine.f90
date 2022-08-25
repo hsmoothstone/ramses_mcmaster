@@ -521,7 +521,9 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
            ! still need center within domain (xp = xp - 0.5)
            r(ind_part(j)) = SQRT(xp(ind_part(j),1)*xp(ind_part(j),1) +  xp(ind_part(j),2) *xp(ind_part(j),2))
            
-           !dot product
+           !dot product         
+           ff(j,1) = ff(j,1) * xp(ind_part(j),1) /  r(ind_part(j)) / r(ind_part(j)
+ 
            new_vp(j,1)=vp(ind_part(j),1)+ff(j,1)*0.5D0*dteff(j)
            new_vp(j,2)=vp(ind_part(j),2)+ff(j,2)*0.5D0*dteff(j)
            !no changes to z
