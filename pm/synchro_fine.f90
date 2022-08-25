@@ -229,7 +229,7 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   integer ,dimension(1:nvector,1:twotondim),save::nbors_father_grids
   ! Particle-based arrays
   logical ,dimension(1:nvector),save::ok
-  real(dp),dimension(1:nvector),save::dteff
+  real(dp),dimension(1:nvector),save::dteff,r
   real(dp),dimension(1:nvector,1:ndim),save::x,ff,new_vp,dd,dg
   integer ,dimension(1:nvector,1:ndim),save::ig,id,igg,igd,icg,icd
   real(dp),dimension(1:nvector,1:twotondim),save::vol
@@ -507,18 +507,41 @@ subroutine sync(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
      levelp(ind_part(j))=ilevel
   end do
 
-  ! Update 3-velocity
-  do idim=1,ndim
-     if(static)then
+  ! Remove azimuthual component of velocity update - 08/22 HR
+  ! remove loop over dimensions - do each separately
+    if(static)then
         do j=1,np
-           new_vp(j,idim)=ff(j,idim)
+           new_vp(j,1)=ff(j,1)
+           new_vp(j,2)=ff(j,2)
+           new_vp(j,3)=ff(j,3)
         end do
      else
         do j=1,np
-           new_vp(j,idim)=vp(ind_part(j),idim)+ff(j,idim)*0.5D0*dteff(j)
+           !edit x,y components of ff here
+           ! still need center within domain (xp = xp - 0.5)
+           r(ind_part(j)) = SQRT(xp(ind_part(j),1)*xp(ind_part(j),1) +  xp(ind_part(j),2) *xp(ind_part(j),2))
+           
+           !dot product
+           new_vp(j,1)=vp(ind_part(j),1)+ff(j,1)*0.5D0*dteff(j)
+           new_vp(j,2)=vp(ind_part(j),2)+ff(j,2)*0.5D0*dteff(j)
+           !no changes to z
+           new_vp(j,3)=vp(ind_part(j),3)+ff(j,3)*0.5D0*dteff(j)
         end do
      endif
-  end do
+  
+
+  ! Update 3-velocity
+  !do idim=1,ndim
+  !   if(static)then
+  !      do j=1,np
+  !         new_vp(j,idim)=ff(j,idim)
+  !      end do
+  !   else
+  !      do j=1,np
+  !         new_vp(j,idim)=vp(ind_part(j),idim)+ff(j,idim)*0.5D0*dteff(j)
+  !      end do
+  !   endif
+  !end do
   do idim=1,ndim
      do j=1,np
         vp(ind_part(j),idim)=new_vp(j,idim)
