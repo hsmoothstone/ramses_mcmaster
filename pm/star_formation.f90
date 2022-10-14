@@ -39,7 +39,7 @@ subroutine star_formation(ilevel)
   real(dp)::ul,ur,fl,fr,trgv,alpha0
   real(dp)::sigma2,sigma2_comp,sigma2_sole,lapld,flong,ftot,pcomp=0.3d0
   real(dp)::divv,divv2,curlv,curlva,curlvb,curlvc,curlv2
-  real(dp)::birth_epoch,factG
+  real(dp)::birth_epoch,factG,tMyr
   real(kind=8)::mlost_all,mtot_all
 #ifndef WITHOUTMPI
   real(kind=8)::mlost,mtot
@@ -136,6 +136,21 @@ subroutine star_formation(ilevel)
   ! Conversion factor from user units to cgs units
   call units(scale_l,scale_t,scale_d,scale_v,scale_nH,scale_T2)
 
+  ! Adjust current star formation efficiency if desired
+  if (eps_star_time > 0) then
+     tMyr = t*scale_t/Myr2sec
+     if (tMyr < 0) then
+        eps_star = eps_star_min
+     elseif (tMyr > eps_star_time)
+        eps_star = eps_star_max
+     else
+        eps_star = (1-tMyr/eps_star_time)*eps_star_min + (tMyr/eps_star_time)*eps_star_max
+        write(*,*)' Updated eps_star ',eps_star,tMyr,myid
+     endif
+        
+
+  endif
+  
   ! Mesh spacing in that level
   dx=0.5D0**ilevel
   nx_loc=(icoarse_max-icoarse_min+1)

@@ -95,7 +95,8 @@ subroutine read_hydro_params(nml_ok)
   ! Star formation parameters
   namelist/sf_params/m_star,t_star,n_star,T2_star,g_star,del_star &
        & ,eps_star,jeans_ncells,sf_virial,sf_trelax,sf_tdiss,sf_model&
-       & ,sf_log_properties,sf_imf,sf_compressive
+       & ,sf_log_properties,sf_imf,sf_compressive&
+       & ,eps_star_min,eps_star_max,eps_star_time
 
   ! Units parameters
   namelist/units_params/units_density,units_time,units_length
