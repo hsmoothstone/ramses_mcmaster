@@ -134,7 +134,7 @@ module amr_parameters
   real(dp)::eps_star=0               ! Star formation efficiency (0.02 at n_star=0.1 gives t_star=8 Gyr)
   real(dp)::eps_star_min=0           ! Star formation efficiency (start val)
   real(dp)::eps_star_max=0           ! Star formation efficiency (end val)
-  real(dp)::eps_star_time=0          ! Star formation efficiency (timescale to change)
+  real(dp)::eps_star_time=0          ! Star formation efficiency (timescale to change: Myr)
   real(dp)::T2_star=0                ! Typical ISM polytropic temperature
   real(dp)::g_star =1.6d0            ! Typical ISM polytropic index
   real(dp)::jeans_ncells=-1          ! Jeans polytropic EOS

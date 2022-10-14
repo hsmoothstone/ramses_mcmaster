@@ -141,7 +141,7 @@ subroutine star_formation(ilevel)
      tMyr = t*scale_t/Myr2sec
      if (tMyr < 0) then
         eps_star = eps_star_min
-     elseif (tMyr > eps_star_time)
+     elseif (tMyr > eps_star_time) then
         eps_star = eps_star_max
      else
         eps_star = (1-tMyr/eps_star_time)*eps_star_min + (tMyr/eps_star_time)*eps_star_max
