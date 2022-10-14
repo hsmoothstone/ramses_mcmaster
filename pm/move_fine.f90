@@ -180,7 +180,7 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
   !------------------------------------------------------------
   logical::error
   integer::i,j,ind,idim,nx_loc,isink
-  real(dp)::dx,dx_loc,scale,vol_loc
+  real(dp)::dx,dx_loc,scale,vol_loc,dot,r2,newx,newy
   ! Grid-based arrays
   integer ,dimension(1:nvector),save::father_cell
   real(dp),dimension(1:nvector,1:ndim),save::x0
@@ -455,7 +455,33 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
 #endif
      end do
   endif
+#ifdef NEWGRAV
+  ! Remove azimuthual component of velocity update - 08/22 HR
+  ! remove loop over dimensions - do each separately
+  !#warning "Azimuthal force on particles removed"
+    if(static)then
+        do j=1,np
+           new_vp(j,1)=ff(j,1)
+           new_vp(j,2)=ff(j,2)
+           new_vp(j,3)=ff(j,3)
+        end do
+     else
+        do j=1,np
+           !get coords centered
+           newx = xp(ind_part(j),1) - 300.0
+           newy = xp(ind_part(j),2) - 300.0
+           r2 = (newx*newx +  newy*newy)
 
+           !dot product
+           dot = (ff(j,1) * newx + ff(j,2) * newy )/r2
+
+           new_vp(j,1)=vp(ind_part(j),1)+dot*newx*0.5D0*dtnew(ilevel)
+           new_vp(j,2)=vp(ind_part(j),2)+dot*newy*0.5D0*dtnew(ilevel)
+           !no changes to z
+           new_vp(j,3)=vp(ind_part(j),3)+ff(j,3)*0.5D0*dtnew(ilevel)
+        end do
+     endif
+#else
   ! Update velocity
   do idim=1,ndim
      if(static.or.tracer)then
@@ -468,7 +494,7 @@ subroutine move1(ind_grid,ind_part,ind_grid_part,ng,np,ilevel)
         end do
      endif
   end do
-
+#endif
   ! For sink cloud particle only
   if(sink)then
      ! Overwrite cloud particle velocity with sink velocity

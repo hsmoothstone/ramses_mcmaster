@@ -595,6 +595,10 @@ subroutine mag_toroidal(x,q,dx,nn,B_0,mag_radius,mag_height)
   real(dp)::dxmin,Al,Ar,ztick,rltick,rrtick,zavg,Bscale,r_scale,z_scale
 
   ! Toroidal field, prop. to rho**(2/3)
+  !write(*,*) 'dx: ',dx
+  !write(*,*) 'B0: ',B_0
+  !write(*,*) 'mag_radius: ', mag_radius
+
 
   dxmin=boxlen*0.5d0**nlevelmax
   nticks=nint(dx/dxmin)
@@ -616,8 +620,9 @@ subroutine mag_toroidal(x,q,dx,nn,B_0,mag_radius,mag_height)
       ztick=ztick + dxmin
     end do
     Bscale = B_0 * zavg/DBLE(nticks) / r_scale / dx
+    !write(*,*) 'Bscale: ',Bscale
 
-    ! B left
+    ! i B left
     ! X direction
     rltick = SQRT( (xx - 0.5*dx)**2 + (yy - 0.5*dx)**2 )
     rrtick = SQRT( (xx - 0.5*dx)**2 + (yy + 0.5*dx)**2 )
@@ -636,7 +641,7 @@ subroutine mag_toroidal(x,q,dx,nn,B_0,mag_radius,mag_height)
 
     q(i,7)=Bscale * (Al-Ar)
 
-    ! Z direction
+   ! Z direction
     q(i,8)=0.0
 
     ! B right
