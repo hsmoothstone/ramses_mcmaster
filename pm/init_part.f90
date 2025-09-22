@@ -913,9 +913,9 @@ contains
                 read(10,*,end=111)xx1,xx2,xx3,vv1,vv2,vv3,mm1
                 jpart=jpart+1
                 indglob=indglob+1
-                xx(i,1)=xx1+boxlen/2
-                xx(i,2)=xx2+boxlen/2
-                xx(i,3)=xx3+boxlen/2
+                xx(i,1)=xx1+boxlen/2 +gal_center1(1)
+                xx(i,2)=xx2+boxlen/2 +gal_center1(2)
+                xx(i,3)=xx3+boxlen/2 +gal_center1(3)
                 vv(i,1)=vv1+Vgal1(1)
                 vv(i,2)=vv2+Vgal1(2)
                 vv(i,3)=vv3+Vgal1(3)
