@@ -145,7 +145,7 @@ subroutine star_formation(ilevel)
         eps_star = eps_star_max
      else
         eps_star = (1-tMyr/eps_star_time)*eps_star_min + (tMyr/eps_star_time)*eps_star_max
-        write(*,*)' Updated eps_star ',eps_star,tMyr,myid
+        !write(*,*)' Updated eps_star ',eps_star,tMyr,myid
      endif
         
 

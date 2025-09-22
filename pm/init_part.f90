@@ -889,9 +889,12 @@ contains
   end subroutine load_grafic
 
   subroutine load_ascii
+    use merger_commons
     ! This function load from ASCII file. As is, you can only load dark matter particles
     ! Local particle count
     ipart=0
+
+    !write(*,*)'Vgal - x' ,Vgal1(1)
 
     if(TRIM(initfile(levelmin)).NE.' ')then
 
@@ -913,9 +916,9 @@ contains
                 xx(i,1)=xx1+boxlen/2
                 xx(i,2)=xx2+boxlen/2
                 xx(i,3)=xx3+boxlen/2
-                vv(i,1)=vv1
-                vv(i,2)=vv2
-                vv(i,3)=vv3
+                vv(i,1)=vv1+Vgal1(1)
+                vv(i,2)=vv2+Vgal1(2)
+                vv(i,3)=vv3+Vgal1(3)
                 mm(i  )=mm1
                 ii(i  )=indglob
                 tmppart%family = FAM_DM

@@ -568,14 +568,14 @@ subroutine mag_constant(q,nn,B_0)
   real(dp)::B_0,mag_radius,mag_height        ! Default B-strength
 
   ! B-left
-  q(1:nn,6) = B_0
+  q(1:nn,6) = 0.0
   q(1:nn,7) = 0.0
-  q(1:nn,8) = 0.0
+  q(1:nn,8) = B_0
 
   ! B-right
-  q(1:nn,nvar+1) = B_0
+  q(1:nn,nvar+1) = 0.0
   q(1:nn,nvar+2) = 0.0
-  q(1:nn,nvar+3) = 0.0
+  q(1:nn,nvar+3) = B_0
 
 end subroutine mag_constant
 

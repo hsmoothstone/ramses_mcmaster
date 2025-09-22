@@ -58,7 +58,7 @@ subroutine dump_all
         call output_patch(filename)
         if(cooling .and. .not. neq_chem)then
            filename=TRIM(filedir)//'cooling_'//TRIM(nchar)//'.out'
-           call output_cool(filename)
+           !call output_cool(filename)
         end if
         if(sink)then
            filename=TRIM(filedir)//'sink_'//TRIM(nchar)//'.csv'
